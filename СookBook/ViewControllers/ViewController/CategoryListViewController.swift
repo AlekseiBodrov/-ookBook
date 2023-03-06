@@ -1,6 +1,6 @@
 import UIKit
 
-class ViewController: UIViewController {
+class CategoryListViewController: UIViewController {
     // MARK: - property
     private let tableView = UITableView()
     private var categories = [
@@ -26,6 +26,7 @@ class ViewController: UIViewController {
     // MARK: - flow funcs
     private func addSubViews() {
         view.addSubview(tableView)
+        view.backgroundColor = .white
     }
 
     private func configure() {
@@ -38,7 +39,7 @@ class ViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.register(UINib(nibName: "TableViewCell", bundle: nil), forCellReuseIdentifier: "TableViewCell")
+        tableView.register(UINib(nibName: "CategoryListTableViewCell", bundle: nil), forCellReuseIdentifier: "CategoryListTableViewCell")
         tableView.register(UINib(nibName: "HeaderView", bundle: nil), forHeaderFooterViewReuseIdentifier: "HeaderView")
     }
 
@@ -52,13 +53,13 @@ class ViewController: UIViewController {
     }}
 
 // MARK: - extension Delegate
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
+extension CategoryListViewController: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return categories.count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryListTableViewCell", for: indexPath) as! CategoryListTableViewCell
         cell.selectionStyle = .none
         let item = categories[indexPath.row]
         cell.categoryNameLabel.text = item
