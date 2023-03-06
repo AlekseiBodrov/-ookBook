@@ -20,8 +20,6 @@
 		8E25CF5B29B3788E00D55E2B /* CategoryListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8E25CF5929B3788E00D55E2B /* CategoryListTableViewCell.xib */; };
 		8E25CF5D29B37B5100D55E2B /* HeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8E25CF5C29B37B5100D55E2B /* HeaderView.xib */; };
 		8E25CF5F29B37C0700D55E2B /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E25CF5E29B37C0700D55E2B /* HeaderView.swift */; };
-		8E25CF6429B383DD00D55E2B /* InstructionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E25CF6229B383DD00D55E2B /* InstructionTableViewCell.swift */; };
-		8E25CF6529B383DD00D55E2B /* InstructionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8E25CF6329B383DD00D55E2B /* InstructionTableViewCell.xib */; };
 		F5FB85AD29AF4291006329C1 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FB85AC29AF4291006329C1 /* NetworkManager.swift */; };
 		F5FB85AF29AF8948006329C1 /* RecipeInstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FB85AE29AF8948006329C1 /* RecipeInstruction.swift */; };
 		F5FB85B129AF8C06006329C1 /* SearchedRecipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FB85B029AF8C06006329C1 /* SearchedRecipe.swift */; };
@@ -60,8 +58,6 @@
 		8E25CF5929B3788E00D55E2B /* CategoryListTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CategoryListTableViewCell.xib; sourceTree = "<group>"; };
 		8E25CF5C29B37B5100D55E2B /* HeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HeaderView.xib; sourceTree = "<group>"; };
 		8E25CF5E29B37C0700D55E2B /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
-		8E25CF6229B383DD00D55E2B /* InstructionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionTableViewCell.swift; sourceTree = "<group>"; };
-		8E25CF6329B383DD00D55E2B /* InstructionTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = InstructionTableViewCell.xib; sourceTree = "<group>"; };
 		F5FB85AC29AF4291006329C1 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		F5FB85AE29AF8948006329C1 /* RecipeInstruction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeInstruction.swift; sourceTree = "<group>"; };
 		F5FB85B029AF8C06006329C1 /* SearchedRecipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchedRecipe.swift; sourceTree = "<group>"; };
@@ -142,8 +138,6 @@
 				FA7F078329B114B700E69D08 /* IngredientHeaderView.xib */,
 				FA7F078229B114B700E69D08 /* IngredientsTableViewCell.swift */,
 				FA7F078429B114B700E69D08 /* IngredientTableViewCell.xib */,
-				8E25CF6229B383DD00D55E2B /* InstructionTableViewCell.swift */,
-				8E25CF6329B383DD00D55E2B /* InstructionTableViewCell.xib */,
 			);
 			path = RecipeView;
 			sourceTree = "<group>";
@@ -388,7 +382,6 @@
 				18448ABB29B3C19C00F7EC3D /* Poppins-Regular.ttf in Resources */,
 				8E25CF5B29B3788E00D55E2B /* CategoryListTableViewCell.xib in Resources */,
 				FA7F078A29B1171300E69D08 /* LaunchScreen.storyboard in Resources */,
-				8E25CF6529B383DD00D55E2B /* InstructionTableViewCell.xib in Resources */,
 				FA68842C29ABDFE900F14554 /* Assets.xcassets in Resources */,
 				8E25CF5D29B37B5100D55E2B /* HeaderView.xib in Resources */,
 				FA7F078729B114B700E69D08 /* IngredientHeaderView.xib in Resources */,
@@ -425,7 +418,6 @@
 				FA7F077A29B1149300E69D08 /* FavoritesViewController.swift in Sources */,
 				FA7F077829B1149300E69D08 /* StartViewController.swift in Sources */,
 				FA7F078529B114B700E69D08 /* IngredientHeaderView.swift in Sources */,
-				8E25CF6429B383DD00D55E2B /* InstructionTableViewCell.swift in Sources */,
 				FA7F076129B1137900E69D08 /* SceneDelegate.swift in Sources */,
 				18448AB929B3C19900F7EC3D /* UIView+Extension.swift in Sources */,
 				FA7F077729B1149300E69D08 /* TabBar.swift in Sources */,
