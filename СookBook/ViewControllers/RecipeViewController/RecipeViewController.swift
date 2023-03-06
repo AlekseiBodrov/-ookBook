@@ -13,6 +13,8 @@ enum Section: Int, CaseIterable {
 final class RecipeViewController: UIViewController {
     // MARK: - constant
     private let headerHeight: CGFloat = 44
+    
+    let recipeID: Int = 1  //в дальнейшем нужно конфигурировать данный VC по этотму id(для него нужен свой init, далее этот id мы передаем при вызове рецепта  present(StepViewController(id: recipeID), animated: true))
 
     // MARK: - property
     let makeLabel = UILabel()
@@ -40,13 +42,6 @@ final class RecipeViewController: UIViewController {
         addSubViews()
         configure()
         setConstraints()
-        NetworkManager.shared.searchRecipeInstructions(withId: 1) { recipes in
-            for recipe in recipes {
-                for step in recipe.steps {
-                    print("Step \(step.number): \(step.step)")
-                }
-            }
-        }
     }
 
     // MARK: - flow funcs
@@ -116,7 +111,7 @@ final class RecipeViewController: UIViewController {
     }
 
     @objc func backButtonAction() {
-        print("back")
+       //
     }
 }
 
