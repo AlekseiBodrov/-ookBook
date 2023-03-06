@@ -20,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let navigation = UINavigationController(rootViewController: startVC)
 //        window?.rootViewController = navigation
         window?.makeKeyAndVisible()
-        window?.rootViewController = RecipeViewController()
+        window?.rootViewController = StepViewController()
     }
 
 //    func configureHomeController() -> UIViewController {

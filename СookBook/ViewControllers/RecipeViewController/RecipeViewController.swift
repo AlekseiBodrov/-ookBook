@@ -40,6 +40,13 @@ final class RecipeViewController: UIViewController {
         addSubViews()
         configure()
         setConstraints()
+        NetworkManager.shared.searchRecipeInstructions(withId: 1) { recipes in
+            for recipe in recipes {
+                for step in recipe.steps {
+                    print("Step \(step.number): \(step.step)")
+                }
+            }
+        }
     }
 
     // MARK: - flow funcs
