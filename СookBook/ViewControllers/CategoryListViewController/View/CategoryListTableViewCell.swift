@@ -1,6 +1,6 @@
 import UIKit
 
-class TableViewCell: UITableViewCell {
+class CategoryListTableViewCell: UITableViewCell {
     // MARK: - constant
     private let shadowAlpha = 0.36
     
