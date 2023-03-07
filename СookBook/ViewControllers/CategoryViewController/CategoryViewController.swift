@@ -13,7 +13,7 @@ final class CategoryViewController: UIViewController {
     
     private let dishes: [Dish] = [Dish(dishName: "Суп 1", dishImage: UIImage(systemName: "fork.knife")!), Dish(dishName: "Суп 2", dishImage: UIImage(systemName: "fork.knife.circle")!), Dish(dishName: "Суп 3", dishImage: UIImage(systemName: "fork.knife.circle.fill")!)]
     
-    private let currentCategoryName = "Супы"
+    var currentCategoryName = "Супы"
     
     private lazy var  categoryNameLabel: UILabel = {
         let label = UILabel()

@@ -66,20 +66,9 @@ extension CategoryListViewController: UITableViewDelegate, UITableViewDataSource
         return cell
     }
 
-    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "HeaderView") as! HeaderView
-        return header
-    }
-
-    public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        UITableView.automaticDimension
-    }
-
-    public func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
-        UITableView.automaticDimension
-    }
-
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("open")
+        let vc = CategoryViewController()
+        vc.currentCategoryName = categories[indexPath.row]
+        present(vc, animated: true, completion: nil)
     }
 }
