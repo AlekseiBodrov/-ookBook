@@ -4,34 +4,41 @@
 //
 //  Created by Aleksandra Asichka on 2023-02-28.
 //
-
 import UIKit
+import Kingfisher
 
 class MainTableViewCell: UITableViewCell {
 
+    // MARK: - constants
+    enum Constants {
+        static let iconImage: String = "heart"
+        static let iconImageViewWidth: CGFloat = 64.0
+        static let cellBorderSize: CGFloat = 1.0
+        static let heartButtonTopSpasing: CGFloat = 39.0
+        static let heartButtonTrailingSpasing: CGFloat = -20.0
+        static let iconViewSideSpacing: CGFloat = 20.0
+        static let descriptionTimeHeight: CGFloat = 18.0
+        static let descriptionTitleHeight: CGFloat = 40.0
+        static let descriptionViewWidth: CGFloat = 175.0
+        static let numberOfLines: Int = 0
+        static let heartImageViewWidth: CGFloat = 44.0
+        static let heartImageViewHeight: CGFloat = 44.0
+        static let elementsHorizontalSpacing: CGFloat = 20.0
+        static let topTimeSpasing: CGFloat = 8.0
+        static let topTitleSpasing: CGFloat = 19.0
+    }
+    
     //MARK: - property
+    var recipeId: Int!
+    var item: RecipeData.RecipeDescription!
+    var indexPath = IndexPath()
+    var isFavorite = false
+    var isSelectedFavorite = false
     
-    private lazy var cellStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillProportionally
-        stackView.spacing = 20
-        stackView.backgroundColor = #colorLiteral(red: 0.9450981021, green: 0.9450981021, blue: 0.9450981021, alpha: 1)
-        stackView.layer.cornerRadius = 12
-        return stackView
-    }()
-    
-    private lazy var icon: UIImageView = {
+    var icon: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         return imageView
-    }()
-    
-    private lazy var descriptionStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 8
-        return stackView
     }()
     
     private lazy var titleLabel: UILabel = {
@@ -44,12 +51,14 @@ class MainTableViewCell: UITableViewCell {
         return label
     }()
     
-    private lazy var bookmarkImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        return imageView
+    private lazy var heartButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(systemName: Constants.iconImage), for: .normal)
+        button.tintColor = .specialBlack
+        button.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
+        return button
     }()
-
+    
     //MARK: - lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -62,85 +71,112 @@ class MainTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
+    
     private func setupViews() {
-        addSubview(cellStackView)
-        cellStackView.addArrangedSubview(icon)
-        cellStackView.addArrangedSubview(descriptionStackView)
-        descriptionStackView.addArrangedSubview(titleLabel)
-        descriptionStackView.addArrangedSubview(timeLabel)
-        cellStackView.addArrangedSubview(bookmarkImageView)
+        contentView.addSubview(icon)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(timeLabel)
+        contentView.addSubview(heartButton)
+        contentView.layer.borderColor = UIColor.specialGray.cgColor
+        contentView.layer.borderWidth = Constants.cellBorderSize
     }
     
     //MARK: - flow funcs
-    func configure(with item: Item){
-        guard let imageName = item.image,
-              let title = item.title,
-              let time = item.time,
-              let bookmark = item.bookmark else { return }
+    func configure(with item: RecipeData.RecipeDescription) {
+        self.recipeId = item.id
+        self.item = item
+        guard let imageName = item.image
+              //let status = item.isFavorite
+        else { return }
 
         configureImage(with: imageName)
-        configureTitle(with: title)
-        configureTime(with: time)
-        configureBookmark(with: bookmark)
+        configureTitle(with: item.title)
+        configureTime(with: item.readyInMinutes)
+        configureHeartButton()
+    }
+    func configureHeartButton() {
+        if isSelectedFavorite {
+            heartButton.tintColor = .specialRed
+            heartButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+            DatabaseManager.saveRecipe(recipeID: Int64(self.recipeId))
+            DatabaseManager.fetchRecipes()
+        } else {
+            heartButton.tintColor = .black
+            heartButton.setImage(UIImage(systemName: "heart"), for: .normal)
+        }
     }
     
     func configureImage(with name: String) {
         icon.contentMode = .scaleAspectFill
         icon.clipsToBounds = true
-        icon.image = UIImage(named: name)
+        icon.rounded()
+//        guard let url = URL(string: name) else { return }
+//        icon.kf.setImage(with: url)
     }
 
-    func configureTitle(with text: String) {
-        titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        titleLabel.numberOfLines = 2
+    func configureTitle(with text: String?) {
+        titleLabel.font = .poppinsBold14()
+        titleLabel.numberOfLines = Constants.numberOfLines
         titleLabel.text = text
     }
 
-    func configureTime(with time: Int) {
-        timeLabel.text = "\(time) Mins"
-        timeLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-        timeLabel.textColor = .lightGray
+    func configureTime(with time: Int?) {
+        timeLabel.text = "\(time ?? .zero) Mins"
+        timeLabel.font = .poppinsRegular12()
+        timeLabel.textColor = .specialLightGray
         timeLabel.contentMode = .left
     }
     
-    func configureBookmark(with name: String) {
-        bookmarkImageView.contentMode = .scaleAspectFill
-        bookmarkImageView.clipsToBounds = true
-        bookmarkImageView.image = UIImage(named: name)
+    @objc private func favoriteButtonTapped(sender: UIButton) {
+        isSelectedFavorite = !isSelectedFavorite
+
+        if isSelectedFavorite {
+            sender.tintColor = .specialRed
+            heartButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+            DatabaseManager.saveRecipe(recipeID: Int64(self.recipeId))
+            DatabaseManager.fetchRecipes()
+        } else {
+            sender.tintColor = .black
+            heartButton.setImage(UIImage(systemName: "heart"), for: .normal)
+        }
     }
     
     func setConstraints() {
-        cellStackView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            cellStackView.topAnchor.constraint(equalTo: topAnchor, constant: 2),
-            cellStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            cellStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            cellStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2),
-        ])
         icon.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            icon.leadingAnchor.constraint(equalTo: cellStackView.leadingAnchor, constant: 20),
-            icon.topAnchor.constraint(equalTo: cellStackView.topAnchor, constant: 20),
-            icon.bottomAnchor.constraint(equalTo: cellStackView.bottomAnchor, constant: -20),
-            icon.widthAnchor.constraint(equalToConstant: 64),
-            //icon.heightAnchor.constraint(equalToConstant: 64)
+            icon.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.iconViewSideSpacing),
+            icon.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.iconViewSideSpacing),
+            icon.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.iconViewSideSpacing),
+            icon.widthAnchor.constraint(equalToConstant: Constants.iconImageViewWidth),
         ])
-        descriptionStackView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            descriptionStackView.widthAnchor.constraint(equalToConstant: 153),
-            descriptionStackView.topAnchor.constraint(equalTo: cellStackView.topAnchor, constant: 29),
-            descriptionStackView.bottomAnchor.constraint(equalTo: cellStackView.bottomAnchor, constant: -29),
-            
-            ])
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        timeLabel.translatesAutoresizingMaskIntoConstraints = false
-        bookmarkImageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            bookmarkImageView.topAnchor.constraint(equalTo: cellStackView.topAnchor, constant: 37),
-            bookmarkImageView.trailingAnchor.constraint(equalTo: cellStackView.trailingAnchor, constant: -20),
-            bookmarkImageView.bottomAnchor.constraint(equalTo: cellStackView.bottomAnchor, constant: -37),
-            bookmarkImageView.widthAnchor.constraint(equalToConstant: 24),
-            bookmarkImageView.heightAnchor.constraint(equalToConstant: 24),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.topTitleSpasing),
+            titleLabel.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: Constants.elementsHorizontalSpacing),
+            titleLabel.widthAnchor.constraint(equalToConstant: Constants.descriptionViewWidth),
+            titleLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: Constants.descriptionTitleHeight)
         ])
+        timeLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            timeLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Constants.topTimeSpasing),
+            timeLabel.heightAnchor.constraint(equalToConstant: Constants.descriptionTimeHeight),
+            timeLabel.widthAnchor.constraint(equalToConstant: Constants.descriptionViewWidth),
+            timeLabel.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: Constants.elementsHorizontalSpacing),
+        ])
+        heartButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            heartButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.heartButtonTopSpasing),
+            heartButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: Constants.heartButtonTrailingSpasing),
+            heartButton.widthAnchor.constraint(equalToConstant: Constants.heartImageViewWidth),
+            heartButton.heightAnchor.constraint(equalToConstant: Constants.heartImageViewHeight)
+            ])
     }
+
+    override func prepareForReuse() {
+            super.prepareForReuse()
+            icon.kf.cancelDownloadTask()
+            icon.image = nil
+            isSelectedFavorite = false
+        }
 }

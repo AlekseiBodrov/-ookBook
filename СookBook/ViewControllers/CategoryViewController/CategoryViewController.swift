@@ -1,23 +1,26 @@
 //
-//  ViewController.swift
+//  CategoryListViewController.swift
 //  СookBook
 //
 //  Created by Alex on 26.02.2023.
 //
 
+import Kingfisher
 import UIKit
 
 final class CategoryViewController: UIViewController {
     
-    private let categoryArray: [DishCategory] = []
+    private let networkManager = NetworkManager()
     
-    private let dishes: [Dish] = [Dish(dishName: "Суп 1", dishImage: UIImage(systemName: "fork.knife")!), Dish(dishName: "Суп 2", dishImage: UIImage(systemName: "fork.knife.circle")!), Dish(dishName: "Суп 3", dishImage: UIImage(systemName: "fork.knife.circle.fill")!)]
+    private var idArray: [Int] = []
     
-    private let currentCategoryName = "Супы"
+    private var dishes: [Dish] = []
     
-    private lazy var  categoryNameLabel: UILabel = {
+    var currentCategoryName: String
+    
+    private lazy var categoryNameLabel: UILabel = {
         let label = UILabel()
-        label.text = currentCategoryName
+        label.text = currentCategoryName.capitalized
         label.textColor = .black
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -41,6 +44,17 @@ final class CategoryViewController: UIViewController {
         tableView.register(DishTableViewCell.self, forCellReuseIdentifier: "DishTableViewCell")
         tableView.delegate = self
         tableView.dataSource = self
+        fetchData()
+        updateData()
+    }
+    
+    init(categoryName: String) {
+        self.currentCategoryName = categoryName
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func setupConstraints() {
@@ -53,28 +67,100 @@ final class CategoryViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
         ])
     }
+    
+    
+    private func updateData() {
+        DatabaseManager.fetchRecipes()
+
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
 }
 
 extension CategoryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //     let detailViewController = DeteilViewController()
-        //     navigationController?.pushViewController(detailViewController, animated: true)
+        let recipeVC = RecipeViewController()
+        let currentID = idArray[indexPath.row]
+        let currentDish = dishes[indexPath.row]
+        recipeVC.recipeId = currentID
+        recipeVC.makeLabel.text = currentDish.dishName
+        
+        if let imageURL = URL(string: currentDish.dishImage ?? "") {
+            let task = URLSession.shared.dataTask(with: imageURL) { (data, response, error) in
+                if let imageData = data, let image = UIImage(data: imageData) {
+                    DispatchQueue.main.async {
+                        recipeVC.recipeImageView.image = image
+                    }
+                }
+            }
+            task.resume()
+        }
+        
+        present(recipeVC, animated: true)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        dishes.count
+        return dishes.count
     }
     
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "DishTableViewCell", for: indexPath) as? DishTableViewCell else { return UITableViewCell() }
-        let data = dishes[indexPath.row]
-        cell.dishImage.image = data.dishImage
-        cell.dishLabel.text = data.dishName
+        
+        let dish = dishes[indexPath.row]
+        
+        let currentID = idArray[indexPath.row]
+        
+        cell.recipeId = currentID
+        
+        cell.dishLabel.text = dish.dishName
+        
+        cell.isSelectedFavorite = false
+        if DatabaseManager.savedRecipes.contains(where: { $0.recipeID == idArray[indexPath.row] }) {
+            cell.isSelectedFavorite = true
+        }
+        cell.configureHeartButton()
+        
+        if let imageURL = URL(string: dish.dishImage ?? "") {
+            cell.dishImage.kf.setImage(with: imageURL)
+        }
+        
         return cell
     }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         267
+    }
+}
+
+
+extension CategoryViewController {
+    func fetchData() {
+        networkManager.fetchRecipes(category: currentCategoryName) { recipeIds, error in
+            if let ids = recipeIds {
+                self.idArray = ids
+                print(self.idArray)
+                var dishes: [Dish] = []
+                let group = DispatchGroup()
+                for id in self.idArray {
+                    group.enter()
+                    self.networkManager.searchRecipeById(by: id) { recipe in
+                        let dish = Dish(dishName: recipe.title, dishImage: recipe.image)
+                        dishes.append(dish)
+                        print(dishes)
+                        group.leave()
+                    }
+                }
+                group.notify(queue: DispatchQueue.main) {
+                    let filteredDishes = dishes.filter { $0.dishImage != nil }
+                    self.dishes = filteredDishes
+                    self.tableView.reloadData()
+                }
+            } else {
+                print("error")
+            }
+        }
     }
 }

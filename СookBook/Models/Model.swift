@@ -9,7 +9,7 @@ import UIKit
 
 struct Dish {
     let dishName: String
-    let dishImage: UIImage
+    let dishImage: String?
 }
 
 struct DishCategory {

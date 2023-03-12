@@ -11,6 +11,11 @@ final class StepViewController: UIViewController {
     
     private let recipeID: Int
     
+<<<<<<< HEAD
+=======
+    private var networkManager = NetworkManager()
+    
+>>>>>>> develop
     private var steps: [Steps] = []
     
     private let tableView: UITableView = {
@@ -35,6 +40,7 @@ final class StepViewController: UIViewController {
         super.viewDidLoad()
         
         view.addSubview(tableView)
+<<<<<<< HEAD
    
         tableView.delegate = self
         tableView.dataSource = self
@@ -48,12 +54,23 @@ final class StepViewController: UIViewController {
                   }
               }
 
+=======
+        
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+>>>>>>> develop
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
+<<<<<<< HEAD
+=======
+        
+        searchInstructions(forRecipeWithId: recipeID)
+>>>>>>> develop
     }
 }
 
@@ -65,13 +82,21 @@ extension StepViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+<<<<<<< HEAD
         return "Инструкция по приготовлению"
+=======
+        return "Steps for prepare"
+>>>>>>> develop
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return steps.count
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> develop
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "StepCell", for: indexPath)
         let step = steps[indexPath.row]
@@ -96,11 +121,32 @@ extension StepViewController: UITableViewDelegate, UITableViewDataSource {
             } else {
                 newAttributedString = NSMutableAttributedString(attributedString: attributedText)
                 newAttributedString.addAttribute(.strikethroughStyle,
+<<<<<<< HEAD
                                                   value: NSUnderlineStyle.single.rawValue,
                                                   range: NSMakeRange(0, attributedText.length))
+=======
+                                                 value: NSUnderlineStyle.single.rawValue,
+                                                 range: NSMakeRange(0, attributedText.length))
+>>>>>>> develop
             }
             text?.attributedText = newAttributedString
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
+<<<<<<< HEAD
+=======
+
+extension StepViewController {
+    func searchInstructions(forRecipeWithId id: Int) {
+        networkManager.searchRecipeInstructions(withId: id) { recipes in
+            if let recipe = recipes.first {
+                self.steps = recipe.steps
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+        }
+    }
+}
+>>>>>>> develop

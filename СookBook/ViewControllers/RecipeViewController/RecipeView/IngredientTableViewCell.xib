@@ -28,8 +28,8 @@
                                     <constraint firstAttribute="width" constant="52" id="htG-h4-loO"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ingredient" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="70C-2M-K8T">
-                                <rect key="frame" x="84" y="27.666666666666664" width="82" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ingredient" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="70C-2M-K8T">
+                                <rect key="frame" x="84" y="28" width="81.666666666666686" height="20.333333333333329"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -43,6 +43,7 @@
                         </subviews>
                         <color key="backgroundColor" name="lightGray"/>
                         <constraints>
+                            <constraint firstItem="MYV-xE-zEP" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="70C-2M-K8T" secondAttribute="trailing" constant="5" id="6EP-Yh-nvm"/>
                             <constraint firstItem="nFG-p9-1IH" firstAttribute="leading" secondItem="taL-uD-V2H" secondAttribute="leading" constant="16" id="CuR-D5-8TZ"/>
                             <constraint firstItem="MYV-xE-zEP" firstAttribute="centerY" secondItem="nFG-p9-1IH" secondAttribute="centerY" id="a03-m0-fSc"/>
                             <constraint firstItem="70C-2M-K8T" firstAttribute="centerY" secondItem="nFG-p9-1IH" secondAttribute="centerY" id="bqM-8b-xpt"/>

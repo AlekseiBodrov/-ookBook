@@ -3,18 +3,38 @@
 //  СookBook
 //
 //  Created by Aleksandra Asichka on 2023-02-27.
-
 import UIKit
 
 class MainViewController: UIViewController {
 
     // MARK: - constants
+    enum Constants {
+        static let receipeLabel: String = "Find best recipes for cooking"
+        static let searchTextFieldLabel: String = "Search recepies"
+        static let trendLabel: String = "Trending now 🔥"
+        static let bookmarkImage: String = "heart"
+        static let searchImage: String = "search"
+        static let tabBarImage: String = "house.fill"
+        static let topViewSideSpacing: CGFloat = 20.0
+        static let receipeLabelHeight: CGFloat = 58.0
+        static let topViewHeight: CGFloat = 100
+        static let trendTitleTopSpacing: CGFloat = 20.0
+        static let tableViewTopSpacing: CGFloat = 20.0
+        static let trendViewHeight: CGFloat = 28.0
+        static let numberOfLines: Int = 2
+        static let heightForRow: CGFloat = 104.0
+        static let searchImageViewSide: CGFloat = 20.0
+    }
     
     // MARK: - property
     
+    var networkManager = NetworkManager()
+    private var recipies: RecipeData?
+    
+    private lazy var tableView = UITableView()
+    
     private lazy var mainStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.spacing = 0
         stackView.axis = .vertical
         stackView.distribution = .fill
         return stackView
@@ -25,86 +45,25 @@ class MainViewController: UIViewController {
         return view
     }()
     
-    private lazy var searchView: UIView = {
-        let view = UIView()
-        return view
-    }()
-    
     private lazy var receipeLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 2
-        label.text = "Find best recipes for cooking"
-        label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        label.numberOfLines = Constants.numberOfLines
+        label.text = Constants.receipeLabel
+        label.font = .poppinsBold24()
         return label
     }()
-    
-    private lazy var searchImageView: UIImageView = {
-        let imageView = UIImageView(frame: CGRect(x: 16, y: 12, width: 20, height: 20))
-        imageView.image = UIImage(named: "search")
-        return imageView
-    }()
-    
-    private lazy var searchTextField: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "Search recepies"
-        tf.borderStyle = .roundedRect
-        tf.leftViewMode = .always
-        tf.leftView = searchImageView
-        return tf
-    }()
-    
-//    private lazy var trendingScrollView: UIScrollView = {
-//        let scrollView = UIScrollView()
-//        return scrollView
-//    }()
-//
-//    private lazy var trendingContentView: UIView = {
-//        let view = UIView()
-//        return view
-//    }()
     
     let titleTrendLabel: UILabel = {
         let label = UILabel()
-        label.text = "Trending now 🔥"
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-        label.numberOfLines = 0
+        label.text = Constants.trendLabel
+        label.font = .poppinsBold20()
+        label.numberOfLines = Constants.numberOfLines
         label.sizeToFit()
-        label.textColor = UIColor.black
+        label.textColor = UIColor.specialBlack
         return label
        }()
     
-    private lazy var trendStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.spacing = 20
-        return stackView
-    }()
 
-//    private lazy var trendImageView: UIImageView = {
-//        let imageView = UIImageView()
-//        imageView.image = UIImage(named: "video")
-//        imageView.contentMode = .scaleAspectFill
-//        return imageView
-//    }()
-    
-    private lazy var bookmarkImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "bookmark")
-        return imageView
-    }()
-    
-    private let items: [Item] = [
-    Item(id: 0, title: "Papper ramen", category: "Noodle", image: "ramen", bookmark: "bookmark", time: 10, isFavorite: false),
-    Item(id: 1, title: "Sweet souse noodle", category: "Lunch", image: "ramen2", bookmark: "bookmark", time: 15, isFavorite: false),
-    Item(id: 2, title: "Chicken soup", category: "Noodle", image: "ramen3", bookmark: "bookmark", time: 19, isFavorite: false)
-    ]
-    
-    private let categories: [String] = ["Salad", "Breakfast", "Appetizer", "Noodle", "Lunch", "Dessert"]
-    
-    private lazy var tableView = UITableView()
-    private var trends = TrendsView()
-    private let viewForHeaderInSection = CategoriesView()
     
     // MARK: - life cycle funcs
     override func viewDidLoad() {
@@ -112,11 +71,22 @@ class MainViewController: UIViewController {
         addSubViews()
         configure()
         setConstraints()
+        networkManager.delegate = self
+        networkManager.getRecipes(.random)
+        if let tabBarItem = self.tabBarController?.tabBar.items?[0] {   // Change the image of the active picture tabBar
+            tabBarItem.selectedImage = UIImage(systemName: Constants.tabBarImage)
+        }
+ 
+        updateData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
     }
     
     override func viewDidLayoutSubviews() {
         tableView.frame = view.safeAreaLayoutGuide.layoutFrame
-        trends.frame = .init(x: 0, y: 0, width: tableView.bounds.width, height: 180)
     }
     
 // MARK: - flow funcs
@@ -129,66 +99,73 @@ class MainViewController: UIViewController {
         view.addSubview(mainStackView)
         mainStackView.addArrangedSubview(topView)
         topView.addSubview(receipeLabel)
-        mainStackView.addArrangedSubview(searchView)
-        searchView.addSubview(searchTextField)
+        topView.addSubview(titleTrendLabel)
         mainStackView.addArrangedSubview(tableView)
     }
     
     func configureView() {
-        view.backgroundColor = .white
-        viewForHeaderInSection.categoriesArray = categories
+        view.backgroundColor = UIColor.white
     }
     
     private func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(MainTableViewCell.self, forCellReuseIdentifier: "cell")
-        tableView.tableHeaderView = trends
+        tableView.separatorColor = .clear
     }
     
     private func setConstraints() {
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             mainStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            mainStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
-            mainStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant:  0),
+            mainStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            mainStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mainStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         topView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             topView.topAnchor.constraint(equalTo: mainStackView.topAnchor),
-            topView.leadingAnchor.constraint(equalTo: mainStackView.leadingAnchor, constant:  20),
-            topView.trailingAnchor.constraint(equalTo: mainStackView.trailingAnchor, constant:  -20),
-            topView.heightAnchor.constraint(equalToConstant: 98),
+            topView.leadingAnchor.constraint(equalTo: mainStackView.leadingAnchor, constant: Constants.topViewSideSpacing),
+            topView.trailingAnchor.constraint(equalTo: mainStackView.trailingAnchor, constant: -Constants.topViewSideSpacing),
+            topView.heightAnchor.constraint(equalToConstant: Constants.topViewHeight),
         ])
         receipeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             receipeLabel.leadingAnchor.constraint(equalTo: topView.leadingAnchor),
             receipeLabel.topAnchor.constraint(equalTo: topView.topAnchor),
-            receipeLabel.bottomAnchor.constraint(equalTo: topView.bottomAnchor),
-            receipeLabel.heightAnchor.constraint(equalToConstant: 58),
-            receipeLabel.widthAnchor.constraint(equalToConstant: 206),
+            receipeLabel.heightAnchor.constraint(equalToConstant: Constants.receipeLabelHeight),
+            receipeLabel.trailingAnchor.constraint(equalTo: topView.trailingAnchor)
         ])
-        searchView.translatesAutoresizingMaskIntoConstraints = false
+        titleTrendLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            searchView.topAnchor.constraint(equalTo: topView.bottomAnchor),
-            searchView.leadingAnchor.constraint(equalTo: mainStackView.leadingAnchor, constant: 20),
-            searchView.trailingAnchor.constraint(equalTo: mainStackView.trailingAnchor, constant: -20),
-            searchView.heightAnchor.constraint(equalToConstant: 60),
-        ])
-        searchTextField.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            searchTextField.topAnchor.constraint(equalTo: searchView.topAnchor, constant: 8),
-            searchTextField.leadingAnchor.constraint(equalTo: searchView.leadingAnchor),
-            searchTextField.trailingAnchor.constraint(equalTo: searchView.trailingAnchor)
+            titleTrendLabel.topAnchor.constraint(equalTo: receipeLabel.bottomAnchor, constant: Constants.trendTitleTopSpacing),
+            titleTrendLabel.leadingAnchor.constraint(equalTo: topView.leadingAnchor),
+            titleTrendLabel.trailingAnchor.constraint(equalTo: topView.trailingAnchor),
+            titleTrendLabel.heightAnchor.constraint(equalToConstant: Constants.trendViewHeight)
         ])
         tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: searchView.bottomAnchor),
+            tableView.topAnchor.constraint(equalTo: titleTrendLabel.bottomAnchor, constant: Constants.tableViewTopSpacing),
             tableView.bottomAnchor.constraint(equalTo: mainStackView.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: mainStackView.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: mainStackView.trailingAnchor)
         ])
+    }
+    
+    @objc private func sendSelectFavorite(_ notification: NSNotification) {
+//        guard let indexPath = notification.userInfo!["indexPath"] as? IndexPath else {return}
+//        print("sendSelectFavorite \(indexPath.row)")
+    }
+    @objc private func sendDeSelectFavorite(_ notification: NSNotification) {
+//        guard let indexPath = notification.userInfo!["indexPath"] as? IndexPath else {return}
+    }
+
+    private func updateData() {
+        DatabaseManager.fetchRecipes()
+
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
 }
 
@@ -196,24 +173,54 @@ class MainViewController: UIViewController {
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 104
-    }
-    
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return viewForHeaderInSection
-    }
-
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 53
+        return Constants.heightForRow
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        guard let counting = recipies?.results.count else {
+            return 0
+        }
+        return counting
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! MainTableViewCell
-        cell.configure(with: items[indexPath.row])
+        guard let recipies = recipies?.results else {
+            return MainTableViewCell()
+        }
+        cell.isSelectedFavorite = false
+        if DatabaseManager.savedRecipes.contains(where: { $0.recipeID == recipies[indexPath.row].id }) {
+            cell.isSelectedFavorite = true
+        }
+        cell.configure(with: (recipies[indexPath.row]))
+        let item = recipies[indexPath.row].image
+        let url = URL(string: item ?? "")
+        cell.icon.kf.setImage(with: url)
+        cell.tintColor = .specialBlack
+        cell.selectionStyle = .none
         return  cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let сontroller = RecipeViewController()
+        let item = recipies?.results[indexPath.row]
+        сontroller.makeLabel.text = item?.title
+        сontroller.recipeId = item?.id ?? 0
+        let url = URL(string: item?.image ?? "")
+        сontroller.recipeImageView.kf.setImage(with: url)
+        present(сontroller, animated: true, completion: nil)
+    }
+}
+
+extension MainViewController: NetworkManagerDelegate {
+    func RecipesDidRecive(_ dataFromApi: RecipeData) {
+        recipies = dataFromApi
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
+    
+    func didFailWithError(error: Error) {
+        print("Error: \(error)")
     }
 }

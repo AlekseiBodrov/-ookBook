@@ -15,8 +15,11 @@ final class TabBar: UITabBarController{
     }
     private func setupVCs() {
             viewControllers = [
-                createNavController(for: MainViewController(), title: NSLocalizedString("Main", comment: ""), image: UIImage(systemName: "house")!),
-                createNavController(for: FavoritesViewController(), title: NSLocalizedString("Favorite recipes", comment: ""), image: UIImage(systemName: "star")!)
+                createNavController(for: MainViewController(), title: NSLocalizedString("Home", comment: ""), image: UIImage(systemName: "house")!),
+                createNavController(for: FavoritesViewController(), title: NSLocalizedString("Favorite recipes", comment: ""), image: UIImage(systemName: "heart")!),
+                createNavController(for: SearchViewController(), title: NSLocalizedString("Search", comment: ""), image: UIImage(systemName: "magnifyingglass")!),
+                createNavController(for: CategoryListViewController(), title: NSLocalizedString("Categories", comment: ""), image: UIImage(systemName: "line.3.horizontal")!)
+
             ]
         }
     private func createNavController(for rootViewController: UIViewController,
